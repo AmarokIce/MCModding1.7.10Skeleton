@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8.5",
   "package": "club.starry.example.mixin",
-  "refmap": "mixins.blahaj.refmap.json",
+  "refmap": "mixins.examplemod.refmap.json",
   "target": "@env(DEFAULT)",
   "compatibilityLevel": "JAVA_8",
   "client": [

@@ -20,9 +20,7 @@ buildscript {
             changing = true
         }
 
-        if (project.enableUsingKotlin.toBoolean()) {
-            classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$project.kotlin_version"
-        }
+        if (project.enableUsingKotlin.toBoolean()) { classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$project.kotlin_version" }
     }
 }
 
@@ -96,9 +94,7 @@ processResources {
         expand 'modversion': project.version, 'mcversion': project.minecraft.version, 'moddescription': project.modDescription, 'modname': project.modName, 'modid': project.modId
     }
 
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
+    exclude 'mcmod.info'
 }
 
 if (project.enableUsingMixin.toBoolean()) {

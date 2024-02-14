@@ -1,8 +1,8 @@
 
 // === === === === === === Mixin Path Start === === === === === ===
+
 def mixinConfig = "mixins.${modId}.json"
 def refMapping = "mixins.${modId}.refmap.json"
-def mixinAP = 'mixin/mixin-0.8-SNAPSHOT.jar'
 
 if (!project.embedMixin.toBoolean()) {
     version += "-mixinless"
@@ -33,6 +33,8 @@ dependencies {
             exclude module: 'log4j-core'
         }
     }
+
+    annotationProcessor 'org.spongepowered:mixin:0.8.5-SNAPSHOT:processor'
 }
 
 def refMap = "${tasks.compileJava.temporaryDir}" + File.separator + refMapping
@@ -60,17 +62,11 @@ reobf {
 }
 
 afterEvaluate {
-    def fixedRelPathToAP = mixinAP
-    if (fixedRelPathToAP.startsWith('./') || fixedRelPathToAP.startsWith('.\\')) {
-        fixedRelPathToAP = fixedRelPathToAP.substring(2)
-    } else if (fixedRelPathToAP.startsWith('/') || fixedRelPathToAP.startsWith('\\')) {
-        fixedRelPathToAP = fixedRelPathToAP.substring(1)
-    }
 
     tasks.compileJava {
         println "Path: " + projectDir.absolutePath
         options.compilerArgs += [
-                "-processorpath", projectDir.absolutePath + '/' + fixedRelPathToAP,
+                // "-processorpath", projectDir.absolutePath + '/' + fixedRelPathToAP,
                 "-processor", "org.spongepowered.tools.obfuscation.MixinObfuscationProcessorInjection,org.spongepowered.tools.obfuscation.MixinObfuscationProcessorTargets",
                 "-Xlint:-sunapi", "-XDenableSunApiLintControl", "-XDignore.symbol.file",
                 "-AreobfSrgFile=${tasks.reobf.srg}", "-AoutSrgFile=${mixinSrg}", "-AoutRefMapFile=${refMap}"
