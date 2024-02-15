@@ -15,9 +15,14 @@ import org.apache.logging.log4j.Logger;
 @Mod(modid = ExampleMod.MODID, name = ExampleMod.NAME, version = ExampleMod.VERSION)
 public class ExampleMod {
     public static final String MODID = "examplemod";
-    public static final String NAME = "ExampleMod";
+    public static final String NAME = "Example Mod";
     public static final String VERSION = "0.0.1";
+
     public static final Logger LOG = LogManager.getLogger(NAME);
+
+    @Mod.Instance(MODID)
+    public static final ExampleMod INSTANCE = new ExampleMod();
+
 
     public static Config CONFIG_BEAN;
 
