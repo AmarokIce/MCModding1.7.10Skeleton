@@ -108,6 +108,10 @@ processResources {
     }
 }
 
+// tasks.withType(Copy).configureEach {
+//     duplicatesStrategy 'exclude'
+// }
+
 if (project.enableUsingMixin.toBoolean()) {
     apply from: 'mixin.gradle'
 } else {
