@@ -2,81 +2,79 @@
 // === === === === === === Mixin Path Start === === === === === ===
 
 def mixinConfig = "mixins.${modId}.json"
-def refMapping = "mixins.${modId}.refmap.json"
+def refMap = "mixins.${modId}.refmap.json"
 
 if (!project.embedMixin.toBoolean()) {
     version += "-mixinless"
 }
 
+runClient {
+    args("--tweakClass", "org.spongepowered.asm.launch.MixinTweaker")
+}
+
+runServer {
+    args("--tweakClass", "org.spongepowered.asm.launch.MixinTweaker")
+}
+
+
 repositories {
     maven {
-        name = "sponge"
-        url = "https://repo.spongepowered.org/maven/"
+        url 'https://jitpack.io'
     }
 }
+
 
 dependencies {
     if (project.embedMixin.toBoolean()) {
-        includeCompile('org.spongepowered:mixin:0.8.5-SNAPSHOT') {
-            exclude module: 'launchwrapper'
-            exclude module: 'guava'
-            exclude module: 'gson'
-            exclude module: 'commons-io'
-            exclude module: 'log4j-core'
-        }
+        includeCompile("com.github.LegacyModdingMC.UniMixins:unimixins-all-1.7.10:0.1.15:dev")
     } else {
-        implementation('org.spongepowered:mixin:0.8.5-SNAPSHOT') {
-            exclude module: 'launchwrapper'
-            exclude module: 'guava'
-            exclude module: 'gson'
-            exclude module: 'commons-io'
-            exclude module: 'log4j-core'
-        }
+        implementation("com.github.LegacyModdingMC.UniMixins:unimixins-all-1.7.10:0.1.15:dev")
     }
-
-    annotationProcessor 'org.spongepowered:mixin:0.8.5-SNAPSHOT:processor'
 }
 
-def refMap = "${tasks.compileJava.temporaryDir}" + File.separator + refMapping
-def mixinSrg = "${tasks.reobf.temporaryDir}" + File.separator + "mixins.srg"
+configurations.implementation.dependencies.each {
+    if (it instanceof ExternalModuleDependency) {
+        it.exclude module: "SpongeMixins"
+        it.exclude module: "SpongePoweredMixin"
+        it.exclude module: "00gasstation-mc1.7.10"
+        it.exclude module: "gtnhmixins"
+    }
+}
+
+def srgFile = "${tasks.compileJava.temporaryDir}/mcpSrg.srg"
+def refMapFile = "${tasks.compileJava.temporaryDir}/$refMap"
+
+def srgFileF = new File(srgFile)
+if (!srgFileF.exists()) {
+    srgFileF.createNewFile()
+}
 
 jar {
-    from refMap
     manifest {
-        attributes.put("TweakClass", "org.spongepowered.asm.launch.MixinTweaker")
-        attributes.put("FMLCorePluginContainsFMLMod", true)
-        attributes.put("ForceLoadAsMod", true)
-        attributes.put("MixinConfigs", mixinConfig)
+        attributes (
+                'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
+                'MixinConfigs': "$mixinConfig",
+                'FMLCorePlugin': 'io.github.legacymoddingmc.unimixins.example.ExampleCore',
+                'ForceLoadAsMod': 'true',
+                'FMLCorePluginContainsFMLMod': 'true',
+        )
     }
 
-    from {
-        configurations.includeCompile.collect {
-            exclude '**/LICENSE.txt'
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
+    from refMapFile;
 }
+
+tasks.compileJava.options.compilerArgs += ["-AreobfSrgFile=${tasks.reobf.srg}", "-AsrgFile=${srgFile}", "-ArefMapFile=${refMapFile}"];
 
 reobf {
-    addExtraSrgFile mixinSrg
+    addExtraSrgFile srgFile
 }
 
-afterEvaluate {
+processResources {
+    inputs.property "mixin_refmap", project.version
 
-    tasks.compileJava {
-        println "Path: " + projectDir.absolutePath
-        options.compilerArgs += [
-                // "-processorpath", projectDir.absolutePath + '/' + fixedRelPathToAP,
-                "-processor", "org.spongepowered.tools.obfuscation.MixinObfuscationProcessorInjection,org.spongepowered.tools.obfuscation.MixinObfuscationProcessorTargets",
-                "-Xlint:-sunapi", "-XDenableSunApiLintControl", "-XDignore.symbol.file",
-                "-AreobfSrgFile=${tasks.reobf.srg}", "-AoutSrgFile=${mixinSrg}", "-AoutRefMapFile=${refMap}"
-        ]
+    filesMatching("$mixinConfig") {
+        expand 'mixin_refmap': refMap
     }
 }
 
-sourceSets {
-    main {
-        ext.refMap = refMapping
-    }
-}
 // === === === === === === Mixin Path End === === === === === ===
