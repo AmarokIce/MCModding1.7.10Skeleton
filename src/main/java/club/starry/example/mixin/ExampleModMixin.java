@@ -13,12 +13,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Block.class)
 public class ExampleModMixin {
+
     @Inject(method = "onBlockActivated", at = @At("HEAD"), remap = false)
     public void blockActivated(World p_149727_1_, int p_149727_2_, int p_149727_3_, int p_149727_4_, EntityPlayer p_149727_5_, int p_149727_6_, float p_149727_7_, float p_149727_8_, float p_149727_9_, CallbackInfoReturnable<Boolean> cir) {
-        ExampleMod.LOG.info("Hello from GrassBlock!");
         Block thiz = (Block) (Object) this;
         if (thiz instanceof BlockGrass) {
-            p_149727_5_.addChatMessage(new ChatComponentText("Hello from GrassBlock!"));
+            p_149727_5_.addChatMessage(new ChatComponentText("Hello from BlockGrass with Mixin!"));
         }
     }
 }

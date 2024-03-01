@@ -84,6 +84,10 @@ dependencies {
         implementation "curse.maven:AJSCore-445557:5100358"
     }
 
+    if (project.enableUsingMysteriumLib.toBoolean()) {
+        implementation "curse.maven:MysteriumLib-645051:3963822"
+    }
+
     implementation "club.someoneice.pineapplepsychic:pineapple-psychic:${project.psychic_version}"
     implementation "club.someoneice.togocup.pineapple_tag:pineapple-tag:${project.tags_version}"
     implementation "club.someoneice.togocup.recipebook:PineappleRecipeBook:${project.recipe_book_version}"
@@ -95,6 +99,9 @@ dependencies {
     implementation fileTree(dir: 'lib', includes: ['*.jar'])
 }
 
+def dependenciesList = []
+if (!project.modDependencies.isEmpty()) dependenciesList.add(project.modDependencies)
+if (project.enableUsingMysteriumLib.toBoolean()) dependenciesList.add("\"required-after:MysteriumLib\"")
 
 processResources {
     inputs.property "modversion", project.version
@@ -103,8 +110,21 @@ processResources {
     inputs.property "modname", project.modName
     inputs.property "modid", project.modId
 
+    inputs.property "url", project.url
+    inputs.property "authorList", [project.authorList]
+    inputs.property "logo", project.logo
+    inputs.property "dependencies", dependenciesList
+
     filesMatching("mcmod.info") {
-        expand 'modversion': project.version, 'mcversion': project.minecraft.version, 'moddescription': project.modDescription, 'modname': project.modName, 'modid': project.modId
+        expand  'modversion': project.version,
+                'mcversion': project.minecraft.version,
+                'moddescription': project.modDescription,
+                'modname': project.modName,
+                'modid': project.modId,
+                'url': project.url,
+                'authorList': [project.authorList],
+                'logo': project.logo,
+                'dependencies': dependenciesList
     }
 }
 
@@ -118,6 +138,15 @@ if (project.enableUsingMixin.toBoolean()) {
     jar {
         from {
             configurations.includeCompile.collect { it.isDirectory() ? it : zipTree(it) }
+        }
+    }
+}
+
+if (project.enableUsingMysteriumLib.toBoolean()) {
+    jar {
+        manifest {
+            attributes 'FMLCorePlugin': "${project.patchClass}"
+            attributes 'FMLCorePluginContainsFMLMod': 'true'
         }
     }
 }
