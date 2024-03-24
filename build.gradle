@@ -80,8 +80,8 @@ repositories {
 
 dependencies {
     if (project.enableUsingKotlin.toBoolean()) {
-        implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
-        implementation "curse.maven:AJSCore-445557:5100358"
+        implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+        implementation "curse.maven:AJSCore-445557:$asjcore_laster"
     }
 
     if (project.enableUsingMysteriumLib.toBoolean()) {
@@ -127,10 +127,6 @@ processResources {
                 'dependencies': dependenciesList
     }
 }
-
-// tasks.withType(Copy).configureEach {
-//     duplicatesStrategy 'exclude'
-// }
 
 if (project.enableUsingMixin.toBoolean()) {
     apply from: 'mixin.gradle'
